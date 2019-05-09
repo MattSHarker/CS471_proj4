@@ -1,0 +1,33 @@
+50
+200
+100
+0.8
+0.005
+0.1
+5
+0.2
+0.8
+1.0
+10
+2
+1
+
+------
+line - name               | explanation          | allowable values
+
+1  - experimentations     | repetitions          | 50+
+2  - population size      | number of vectors    | 200+
+3  - generations          | how long it improves | 100+
+4  - CR probability       |                      | [0.8, 0.95] 
+5  - mutation probability |                      | [0.005-0.001]
+6  - mutation range       |                      | 0.1
+7  - mutation precision   |                      | 1-5
+8  - Elitism rate         | % of parents to keep | (0, 1]
+9  - Scaling Factor       |                      | (0, 1.2)
+10 - Lambda               | another scaling fctr | (0, 1.5]
+11 - NumStrats            | how many to use      | 1-10
+12 - Selection type       |                      | 1-2
+13 - crossover type       | crossover for GA     | 1-2
+
+
+
