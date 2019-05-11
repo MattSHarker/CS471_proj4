@@ -16,12 +16,9 @@
 
 #include <iostream>
 
-#include "csv.h"
-#include "differentialEvolution.h"
-#include "geneticAlg.h"
 #include "Parameters.h"
+#include "particleSwarm.h"
 #include "Population.h"
-#include "RecordKeeper.h"
 
 using namespace std;
 
@@ -40,38 +37,27 @@ int main()
     Population** pops = new Population*[params.numFuncs];
     for (int i = 0; i < params.numFuncs; ++i)
         pops[i] = new Population(params, i);
-
+/*
     // create an array RecordKeeper objects
     RecordKeeper** rks = new RecordKeeper*[params.numFuncs];
     for (int i = 0; i < params.numFuncs; ++i)
         rks[i] = new RecordKeeper(params);
-
-    // run the genetic algorithm
-    cout << "Starting Genetic Algorithm...\n";
-    geneticAlgorithm(pops, rks);
-    cout << "Genetic Algorithm Completed\n";
-
-    // print the results to csv files
-    geneticCSVs(pops, rks);
-
-    // run the differentail evolution
-    cout << "Starting Differential Evolution...\n";
-    differentialEvolution(pops, rks);
-    cout << "Differential Evolution Completed\n";
-
-    // print the results to csv files
-    differentialCSVs(pops, rks);
+*/
+    // run PSO
+    cout << "Starting Particle Swarm optimization...\n";
+    particleSwarm(pops);
+    cout << "Particle Swarm optimization completed\n";
 
     // destroy the Population \m/ 
     for (int i = 0; i < params.numFuncs; ++i)
         delete pops[i];
     delete [] pops;
-
+/*
     // destroy the RecordKeeper 
     for (int i = 0; i < params.numFuncs; ++i)
         delete rks[i];
     delete [] rks;
-
+*/
     return 0;
 }
 
