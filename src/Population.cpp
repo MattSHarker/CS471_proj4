@@ -160,6 +160,10 @@ void Population::incrimentFuncCalls()
     ++funcCalls;
 }
 
+void Population::resetFuncCalls()
+{
+    funcCalls = 0;
+}
 
 /**
  * @brief Return the number of function calls
@@ -189,17 +193,6 @@ int Population::getFunction()
 int Population::getNumFuncs()
 {
     return numFuncs;
-}
-
-
-/**
- * @brief return the number of generations being ran
- * 
- * @return int Number of generations
- */
-int Population::getGenerations()
-{
-    return generations;
 }
 
 /**

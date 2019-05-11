@@ -13,8 +13,6 @@ private:
     int funcCalls;          // how many times a fitness function has been called
     int function;           // which function the population is running
     int numFuncs;           // how total functions there are
-    int generations;        // how many generations the population will go through
-                                // primarily used for storing the history of solutions
 
     double lowerBound;      // the lowest acceptable value of an element in a solution
     double upperBound;      // the highest acceptable value of an element in a solution
@@ -45,7 +43,6 @@ public:
 
     // functions for single variables
     int    getExperimentations();
-    int    getGenerations();
     int    getNumFuncs();
     int    getPopSize();
     int    getSolutionSize();
@@ -59,7 +56,7 @@ public:
 
     // functions for funcCalls
     int  getFuncCalls();
-    void addToFuncCalls(const int otherFuncCalls);
+    void resetFuncCalls();
     void incrimentFuncCalls();
 
     // functions for function
