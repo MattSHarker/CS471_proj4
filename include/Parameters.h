@@ -1,32 +1,27 @@
-#ifndef __FILES_H
-#define __FILES_H
+
+#ifndef PARAMETERS_H
+#define PARAMETERS_H
 
 struct Parameters
 {
-    // for matrix
+    // general variables
     int numVecs;
     int numDims;
     int numFuncs;
+    int experimentations;
+    int popSize;
 
-    // for population
-    int    experimentations;
-    int    generations;
-    int    mutPrecision;
-    int    popSize;
-    int    selection;
-    int    strategies;
-    double crProbability;
-    double elitismRate;
-    double mutProbability;
-    double mutRange;
-
-    // scaling factors
-    double scale;
-    double lambda;
-
-    // for all
     float* lowRanges;
     float* highRanges;
+
+    // PSO variables
+    double velConst1;
+    double velConst2;
+
+    // FFO variables
+    double alpha;
+    double beta;
+    double gamma;
 
     // auxillary functions
     void setupRanges(const int funcs);
@@ -35,17 +30,6 @@ struct Parameters
 Parameters getParameters();
 
 bool comparedoubles(const double, const double);
-
-int moveToRange(const int);
-
-void checkVectors(const int);
-void checkNumberOfFunctions(const int numFuncs);
-void checkDimensions(const int dims);
-
-void checkPopSize(const int popSolutions);
-void checkGenerations(const int generations);
-void checkExperimentations(const int experimentations);
-void checkElitismRate(const int elitismRate);
 
 void printParameters(const int, const int, const int, const double);
 
