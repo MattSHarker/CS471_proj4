@@ -5,7 +5,7 @@
  * @brief   This file contains the various functions being
  *          used to test optimization
  * 
- * @version 0.1
+ * @version 1.0
  * @date 2019-04-05
  * 
  * @copyright Copyright (c) 2019
