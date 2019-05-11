@@ -7,7 +7,7 @@
  *          that provide extra functions, such as reading in
  *          parameters, and setting values in vectors.
  * 
- * @version 1.1
+ * @version 3.0
  * @date 2019-04-22
  * 
  * @copyright Copyright (c) 2019
@@ -54,108 +54,6 @@ bool compareDoubles(const double x, const double y)
 
 
 /**
- * @brief   Ensures the correct amount of vectors.
- *          This program requires at least 30 vectors to be
- *          used to ensure proper results.
- * 
- * @param numVecs   The number of vectors being used.
- */
-void checkVectors(const int numVecs)
-{
-    // the number of vectors must be at least 30
-    if (numVecs < 30)
-    {
-        cout << "The number of vectors must be at least 30" << endl;
-        exit(EXIT_FAILURE);
-    }
-}
-
-/**
- * @brief   Ensures a usable amount of functions.
- *          THe number of functions must be at least 1.
- * 
- * @param numFuncs  The number of functions being used
- */
-void checkNumberOfFunctions(const int numFuncs)
-{
-    // must be at least 1 function
-    if (numFuncs < 1)
-    {
-        cout << "There must be at lest 1 function being ran in this program\n";
-        exit(EXIT_FAILURE);
-    }
-}
-
-/**
- * @brief   Ensures the correct amount of dimensions.
- *          This program requires that either 10, 20, or 30
- *          are to be used to ensure proper results.
- * 
- * @param dims  The number of dimensions the vectors contain.
- */
-void checkDimensions(const int dims)
-{
-    // dimensions must be either 10, 20, or 30
-    if (dims != 10 && dims != 20 && dims != 30)
-    {
-        cout << "The number of dimensions must be either 10, 20, or 30" << endl;
-        exit(EXIT_FAILURE);
-    }
-}
-
-
-/**
- * @brief   Ensures the step size is usable.
- *          The step size must be positive.
- * 
- * @param stepSize  How far the local searches will check for another solution
- */
-void checkStepSize(const int stepSize)
-{
-    // step size must be positive
-    if (stepSize < 0)
-    {
-        cout << "The step size must be positive\n";
-        exit(EXIT_FAILURE);
-    }
-}
-
-void checkPopSize(const int popSize)
-{
-    if (popSize < 200)
-    {
-        cout << "There must be at least 200 solutions for each population\n";
-        exit(EXIT_FAILURE);
-    }
-}
-
-void checkGenerations(const int gens)
-{
-    if (gens < 100)
-    {
-        cout << "There must be at least 100 generations\n";
-        exit(EXIT_FAILURE);
-    }
-}
-
-void checkExperimentations(const int exp)
-{
-    if (exp < 50)
-    {
-        cout << "There must be at least 50 experimentations\n";
-        exit(EXIT_FAILURE);
-    }
-}
-
-void checkElitismRate(const double rate)
-{
-    if (rate > 1.0 || rate < 0.0)
-    {
-        cout << "The elitism rate must be between 0 and 1\n";
-    }
-}
-
-/**
  * @brief   Reads in parameters from a file and returns
  *          an object filled with the values.
  * 
@@ -167,7 +65,7 @@ Parameters getParameters()
     Parameters params;
 
     // open first file for matrix info
-    ifstream file1 ("parameters/matrixParams.txt");
+    ifstream file1 ("parameters/functionParams.txt");
 
     if (file1.is_open())
     {  
@@ -179,11 +77,6 @@ Parameters getParameters()
         file1 >> params.numVecs;
         file1 >> params.numDims;
         file1 >> params.numFuncs;
-
-        // check the variables
-        checkVectors(params.numVecs);
-        checkDimensions(params.numDims);
-        checkNumberOfFunctions(params.numFuncs);
 
         // read in the info for the ranges
         params.setupRanges(params.numFuncs);
@@ -214,7 +107,7 @@ Parameters getParameters()
     else
     {
         // if the file could not be opened
-        cout << "Matrix parameter file not found\n";
+        cout << "Function parameter file not found\n";
         exit(EXIT_FAILURE);
     }
     
@@ -222,7 +115,7 @@ Parameters getParameters()
     file1.close();
 
     // open the population parameters file
-    ifstream file2 ("parameters/populationParams.txt");
+    ifstream file2 ("parameters/optimizationParams.txt");
 
     // if the file was succesfully opened
     if (file2.is_open())
@@ -230,33 +123,23 @@ Parameters getParameters()
         // retreive the variables
         file2 >> params.experimentations;
         file2 >> params.popSize;
-        file2 >> params.generations;
-        file2 >> params.crProbability;
-        file2 >> params.mutProbability;
-        file2 >> params.mutRange;
-        file2 >> params.mutPrecision;
-        file2 >> params.elitismRate;
-        file2 >> params.scale;
-        file2 >> params.lambda;
-        file2 >> params.strategies;
-        file2 >> params.selection;
+        file2 >> params.velConst1;
+        file2 >> params.velConst2;
+        file2 >> params.alpha;
+        file2 >> params.beta;
+        file2 >> params.gamma;
 
         // check variables to ensure they are within bounds
-        checkPopSize(params.popSize);
-        checkGenerations(params.generations);
-        checkExperimentations(params.experimentations);
-        checkElitismRate(params.elitismRate);
     }
     else
     {
         // if the file could not be found
-        cout << "Population parameter file not found\n";
+        cout << "Optimization parameter file not found\n";
         exit(EXIT_FAILURE);
     }
     
     // close the file
     file2.close();
-
 
     // return the params object
     return params;
