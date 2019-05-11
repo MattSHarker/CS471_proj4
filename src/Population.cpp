@@ -2,7 +2,7 @@
  * @file Population.cpp
  * @author Matthew Harker
  * @brief Holds optimization information
- * @version 1.0
+ * @version 3.0
  * @date 2019-05-03
  * 
  * @copyright Copyright (c) 2019
@@ -10,6 +10,7 @@
  */
 #include <cfloat>
 #include <chrono>
+#include <climits>
 #include <iostream>
 #include <random>
 
@@ -31,18 +32,12 @@ Population::Population(Parameters params, const int func)
     solutionSize     = params.numDims;
     experimentations = params.experimentations;
     numFuncs         = params.numFuncs;
-    generations      = params.generations;
+    velConst1        = params.velConst1;
+    velConst2        = params.velConst2;
     function         = func;
     funcCalls        = 0;
 
-    mutProbability  = params.mutProbability;
-    mutRange        = params.mutRange;
-    mutPrecision    = params.mutPrecision;
-    elitismRate     = params.elitismRate;
-    crossoverRate   = params.crProbability;
-    selection       = params.selection;
-    scale           = params.scale;
-    lambda          = params.lambda;
+    globBestFit = DBL_MAX;
 
     lowerBound = params.lowRanges[func];
     upperBound = params.highRanges[func];
@@ -50,55 +45,31 @@ Population::Population(Parameters params, const int func)
     // initialize fitness array
     fitness = new double[popSize];
 
-    // initialize cost array
-    cost = new double[popSize];
+    // initialize the globalBest solution array and set the values to DBL_MAX
+    globBestVec = new double[solutionSize];
+
+    // initialize the pBest fitness array
+    pBestFit = new double[popSize];
+
+    // initialize the intensity array
+    intensity = new double[popSize];
+
+    // initialize the pBest solution matrix
+    pBestVec = new double*[popSize];
+    for (int i = 0; i < popSize; ++i)
+        pBestVec[i] = new double[solutionSize];
 
     // initialize population matrix
     population = new double*[popSize];
     for (int i = 0; i < popSize; ++i)
         population[i] = new double[solutionSize];
-}
 
-
-
-/**
- * @brief Construct a new Population:: Population object
- * 
- * @param other another population object to get values from
- */
-Population::Population(Population* other)
-{
-    // copy information from the other population 
-    popSize          = other->getPopSize();
-    solutionSize     = other->getSolutionSize();
-    experimentations = other->getExperimentations();
-    function         = other->getFunction();
-    numFuncs         = other->getNumFuncs();
-    generations      = other->getGenerations();
-
-    mutProbability = other->getMutProbability();
-    mutRange       = other->getMutRange();
-    mutPrecision   = other->getMutPrecision();
-    elitismRate    = other->getElitismRate();
-    crossoverRate  = other->getCrossoverRate();
-
-    lowerBound = other->getLowerBound();
-    upperBound = other->getUpperBound();
-
-    // set funcCalls to 0
-    funcCalls = 0;
-
-    // initialize fitness array
-    fitness = new double[popSize];
-
-    // initialize cost array
-    cost = new double[popSize];
-
-    // initialize population matrix
-    population = new double*[popSize];
+    // initialize velocity matrix
+    velocity = new double*[popSize];
     for (int i = 0; i < popSize; ++i)
-        population[i] = new double[solutionSize];
+        velocity[i] = new double[solutionSize];
 }
+
 
 /**
  * @brief Destroy the Population:: Population object
@@ -119,9 +90,35 @@ Population::~Population()
     if (fitness != nullptr)
         delete [] fitness;
 
-    // destroy cost array
-    if (cost != nullptr)
-        delete [] cost;
+    // destroy the global best vector array
+    if (globBestVec != nullptr)
+        delete [] globBestVec;
+    
+    // destroy the personal best fitness array
+    if (pBestFit != nullptr)
+        delete [] pBestFit;
+
+    // destroy the intensity array
+    if (intensity != nullptr)
+        delete [] intensity;
+    
+    // destroy the personal best solution matrix
+    if (pBestVec != nullptr)
+    {
+        for (int i = 0; i < popSize; ++i)
+            delete [] pBestVec[i];
+        
+        delete [] pBestVec;
+    }
+
+    // destroy the velocity matrix
+    if (velocity != nullptr)
+    {
+        for (int i = 0; i < popSize; ++i)
+            delete [] velocity[i];
+        
+        delete [] velocity;
+    }
 }
 
 /**
@@ -175,16 +172,6 @@ int Population::getFuncCalls()
 }
 
 /**
- * @brief set the function of the population
- * 
- * @param newFunc the new function to run
- */
-void Population::setFunction(const int newFunc)
-{
-    function = newFunc;
-}
-
-/**
  * @brief return the number of the function the population uses
  * 
  * @return int 
@@ -204,6 +191,7 @@ int Population::getNumFuncs()
     return numFuncs;
 }
 
+
 /**
  * @brief return the number of generations being ran
  * 
@@ -215,23 +203,54 @@ int Population::getGenerations()
 }
 
 /**
- * @brief Sets the value of the lowest allowable value
+ * @brief Returns the value in velConst1
  * 
- * @param newLower lowest allowable value
+ * @return double The first constant for modifying the velocity 
  */
-void Population::setLowerBound(const int newLower)
+double Population::getVelConst1()
 {
-    lowerBound = newLower;
+    return velConst1;
 }
 
 /**
- * @brief sets the value of the highest allowable value
+ * @brief Returns the value of velConst2
  * 
- * @param newUpper highest allowable value
+ * @return double The second constant for modifying the velocity
  */
-void Population::setUpperBound(const int newUpper)
+double Population::getVelConst2()
 {
-    upperBound = newUpper;
+    return velConst2;
+}
+
+/**
+ * @brief Returns the value of alpha
+ * 
+ * @return double A constant to determine movement
+ */
+double Population::getAlpha()
+{
+    return alpha;
+}
+
+/**
+ * @brief Returns the value of beta
+ * 
+ * @return double A variable to determine movement and attractiveness
+ */
+double Population::getBeta()
+{
+    return beta;
+}
+
+/**
+ * @brief Returns the value of gamma
+ * 
+ * @return double A variable to determine attractiveness,
+ *                  movement, and light intensity
+ */
+double Population::getGamma()
+{
+    return gamma;
 }
 
 /**
@@ -255,118 +274,6 @@ double Population::getUpperBound()
 }
 
 /**
- * @brief Sets the indices of the two parent variables
- * 
- * @param newPar1   Index of parent 1
- * @param newPar2   Index of parent 2
- */
-void Population::setParents(const int newPar1, const int newPar2)
-{
-    parent1 = newPar1;
-    parent2 = newPar2;
-}
-
-/**
- * @brief Return the index of parent 1
- * 
- * @return int Index of parent 1
- */
-int Population::getParent1()
-{
-    return parent1;
-}
-
-/**
- * @brief Return the index of parent 2
- * 
- * @return int index of parent 2
- */
-int Population::getParent2()
-{
-    return parent2;
-}
-
-/**
- * @brief return the value of selection
- * 
- * @return int selection
- */
-int Population::getSelection()
-{
-    return selection;
-}
-
-/**
- * @brief Return the mutation range
- * 
- * @return double mutation range
- */
-double Population::getMutRange()
-{
-    return mutRange;
-}
-
-/**
- * @brief Return the mutation probability
- * 
- * @return double 
- */
-double Population::getMutProbability()
-{
-    return mutProbability;
-}
-
-/**
- * @brief return the mutation precision
- * 
- * @return int mutation precision
- */
-int Population::getMutPrecision()
-{
-    return mutPrecision;
-}
-
-/**
- * @brief return the elitism rate
- * 
- * @return double elitism rate
- */
-double Population::getElitismRate()
-{
-    return elitismRate;
-}
-
-/**
- * @brief return the crossover rate
- * 
- * @return double crossover rate
- */
-double Population::getCrossoverRate()
-{
-    return crossoverRate;
-}
-
-/**
- * @brief return the scaling factor
- * 
- * @return double scaling factor
- */
-double Population::getScale()
-{
-    return scale;
-}
-
-/**
- * @brief Return another scaling factor
- * 
- * @return double another scaling factor
- */
-double Population::getLambda()
-{
-    return lambda;
-}
-
-/**
  * @brief Set the values of a solution in the population
  * 
  * @param vec       The solution vector being set
@@ -376,6 +283,18 @@ void Population::setPopulation(const int vec, double* newSol)
 {
     for (int i = 0; i < solutionSize; ++i)
         population[vec][i] = newSol[i];
+}
+
+/**
+ * @brief Set the value of an element in the population matrix
+ * 
+ * @param vec       The vector of the matrix to set
+ * @param elem      The element of the vector to set
+ * @param newVal    The value to set the element to
+ */
+void Population::setPopulation(const int vec, const int elem, double newVal)
+{
+    population[vec][elem] = newVal;
 }
 
 /**
@@ -402,6 +321,98 @@ double* Population::getPopulation(const int vec)
 }
 
 /**
+ * @brief Sets one value of the pBestVec matrix
+ * 
+ * @param vec       The vector to set
+ * @param elem      The element of the vector to set
+ * @param newVal    The value to set
+ */
+void Population::setPBestVec(const int vec, const int elem, double newVal)
+{ 
+    pBestVec[vec][elem] = newVal;
+}
+
+/**
+ * @brief Returns a value from the pBestVec matrix
+ * 
+ * @param vec       The vector of the value
+ * @param elem      The element of the vector
+ * @return double   The value being returned
+ */
+double Population::getPBestVec(const int vec, const int elem)
+{
+    return pBestVec[vec][elem];
+}
+
+/**
+ * @brief Sets a value in the pBestFit array
+ * 
+ * @param vec       The element of the array to set
+ * @param newFit    The value to set the element to
+ */
+void Population::setPBestFit(const int vec, double newFit)
+{
+    pBestFit[vec] = newFit;
+}
+
+/**
+ * @brief Returns a value from the pBestFit array
+ * 
+ * @param vec       The element to return
+ * @return double   The value of the element
+ */
+double Population::getPBestFit(const int vec)
+{
+    return pBestFit[vec];
+}
+
+
+
+
+/**
+ * @brief Sets a value in the globBestVec array
+ * 
+ * @param elem      The element of the array to set
+ * @param newBest   The value to set the element to
+ */
+void Population::setGlobalBestVec(const int elem, double newBest)
+{
+    globBestVec[elem] = newBest;
+}
+
+/**
+ * @brief Returns a value from the globBestVec array
+ * 
+ * @param elem      The element of the array to return
+ * @return double   The value of the element
+ */
+double Population::getGlobalBestVec(const int elem)
+{
+    return globBestVec[elem];
+}
+
+/**
+ * @brief Sets the value of globBestFit
+ * 
+ * @param newFit The new value for globBestFit
+ */
+void Population::setGlobalBestFit(double newFit)
+{
+    globBestFit = newFit;
+}
+
+/**
+ * @brief Returns the value of globBestFit
+ * 
+ * @return double The value of globBestFit
+ */
+double Population::getGlobalBestFit()
+{
+    return globBestFit;
+}
+
+
+/**
  * @brief Returns the index of the solution vector with the lowest fitness
  * 
  * @return int Index of best solution vector
@@ -415,9 +426,9 @@ int Population::getIndexOfBest()
     // find the best solution
     for (int i = 0; i < popSize; ++i)
     {
-        if (best < cost[i])
+        if (best > fitness[i])
         {
-            best = cost[i];
+            best = fitness[i];
             index = i;
         }
     }
@@ -427,117 +438,28 @@ int Population::getIndexOfBest()
 }
 
 /**
- * @brief Generates the costs of every solution vector
- * 
- */
-void Population::generateAllCosts()
-{
-    // calculate the fitness for every solution
-    for (int i = 0; i < popSize; ++i)
-        generateOneCost(i);
-}
-
-/**
- * @brief generates the cost of one solution vector
- * 
- * @param index Index of solution
- */
-void Population::generateOneCost(const int index)
-{
-    // calcualate and set the fitness of the specified solution
-    cost[index] = runSolution(population[index], solutionSize, function);
-
-    // incriment the functionCall variable
-    incrimentFuncCalls();
-}
-
-/**
- * @brief Returns the cost of a solution vector
- * 
- * @param index     Index of solution vector
- * @return double   Fitness of solution vector
- */
-double Population::getCost(const int index)
-{
-    return cost[index];
-}
-
-/**
- * @brief Returns the full cost vector
- * 
- * @return double* Cost array
- */
-double* Population::getCost()
-{
-    return cost;
-}
-
-/**
- * @brief Generates the total cost of the population
- * 
- */
-void Population::generateTotalCost()
-{
-    // reset the value
-    totalFitness = 0;
-
-    // sum up all of the fitnesses
-    for (int i = 0; i < popSize; ++i)
-        totalFitness += fitness[i];
-}
-
-/**
- * @brief Returns the total cost of the population
- * 
- * @return double Total cost
- */
-double Population::getTotalCost()
-{
-    return totalCost;
-}
-
-/**
- * @brief Returns the total fitness of the population
- * 
- * @return double total fitness
- */
-double Population::getTotalFitness()
-{
-    return totalFitness;
-}
-
-/**
- * @brief Generates all of the normalized fitnesses
+ * @brief Generates the fitness of every solution vector
  * 
  */
 void Population::generateAllFitness()
 {
-    // generate all of the solutions' costs
-    generateAllCosts();
-
-    // for every element in the cost and fitness arrays
-    for (int i = 0; i < solutionSize; ++i)
-    {
-        if(cost[i] >= 0)
-            fitness[i] = 1 / (1 + cost[i]);
-        else
-            fitness[i] = 1 / (1 + std::abs(cost[i]));
-        
-    }
+    // calculate the fitness for every solution
+    for (int i = 0; i < popSize; ++i)
+        generateOneFitness(i);
 }
 
 /**
- * @brief Generates total normalized fitnesses
+ * @brief generates the fitness of one solution vector
  * 
+ * @param index Index of solution
  */
-void Population::generateTotalFitness()
+void Population::generateOneFitness(const int index)
 {
-    // reset the value of totalFitness
-    totalFitness = 0;
+    // calcualate and set the fitness of the specified solution
+    fitness[index] = runSolution(population[index], solutionSize, function);
 
-    // add all of the fitnesses together
-    for (int i = 0; i < solutionSize; ++i)
-        totalFitness += fitness[i];
+    // incriment the functionCall variable
+    incrimentFuncCalls();
 }
 
 /**
@@ -561,79 +483,27 @@ double* Population::getFitness()
     return fitness;
 }
 
-
-
 /**
- * @brief A method of insertion sort which will sort the
- *          population matrix and the fitness matrix.
- *        The population matrix will be sorted according to
- *          each solution vector's corresponding fitness. The
- *          fitness array will also be sorted as well.
+ * @brief Sets the value of an element in the velocity matrix
  * 
+ * @param vec       The vector of the matrix to set
+ * @param elem      The element of the matrix to set
+ * @param newVel    The value to set the element to
  */
-void Population::sortPopulation()
+void Population::setVelocity(const int vec, const int elem, double newVel)
 {
-    // create a temporary array to hold a solution vector
-    double* curSol = new double[solutionSize];
-
-    // create a variabe to hold a fitness
-    double curFit;
-
-    // for every solution in the matrix
-    for (int i = 0; i < popSize; ++i)
-    {
-        // get the fitness to sort
-        curFit = fitness[i];
-
-        // get the initial index to compare
-        int j = i - 1;
-
-        // for the remainder of the unsorted array
-        while (j >= 0 && fitness[j] < curFit)   /* double check the right comparator */
-        {
-            // move the compared fitness forward one
-            fitness[j+1] = fitness[j];
-
-            // move the corresponding solution vector forward one position
-            for (int x = 0; x < solutionSize; ++x)
-                curSol[x] = population[j][x];
-            
-            // move the index backwards
-            --j;
-        }
-
-        // move the initial fitness into its sorted position
-        fitness[j+1] = curFit;
-
-        // move the corresponding solution vector into its sorted position
-        for (int x = 0; x < solutionSize; ++x)
-            population[j+1][x] = curSol[x];
-    }
-
-    // destroy the array
-    delete [] curSol;
+    velocity[vec][elem] = newVel;
 }
 
 /**
- * @brief Initializes a population
+ * @brief Returns the value of an element from the velocity matrix
  * 
+ * @param vec       The vector of the element to return
+ * @param elem      The element of the vector to return
+ * @return double   The value of the element
  */
-void Population::initialize()
+double Population::getVelocity(const int vec, const int elem)
 {
-    // set up random number generation
-    double seed = seed = chrono::high_resolution_clock::now().time_since_epoch().count();
-    mt19937 mt(seed);
-
-    // set up random distribution for (lowerBound, upperBound) and get a value
-    uniform_real_distribution<> distr(lowerBound, upperBound);
-
-    // randomize the population matrix
-    for (int i = 0; i < popSize; ++i)
-        for (int j = 0; j < solutionSize; ++j)
-            population[i][j] = distr(mt);
-            
-    // calculate the cost
-    generateAllCosts();
-    generateAllFitness();
+    return velocity[vec][elem];
 }
 
