@@ -1,4 +1,5 @@
 
+#include <ctime>
 #include <iostream>
 #include <random>
 #include <thread>
@@ -12,19 +13,19 @@ using namespace std;
  * 
  * @param pops 
  */
-void particleSwarm(Population** pops)
+void particleSwarm(Population** pops, RecordKeeper** rks)
 {
     int funcs = pops[0]->getNumFuncs();
     thread* myThreads = new thread[funcs];
 /*
     for (int i = 0; i < funcs; ++i)
-        myThreads[i] = thread(runParticleSwarm, pops[i]);
+        myThreads[i] = thread(runParticleSwarm, pops[i], rks[i]);
     
     for (int i = 0; i < funcs; ++i)
         myThreads[i].join();
 */
     for (int i = 0; i < funcs; ++i)
-        runParticleSwarm(pops[i]);
+        runParticleSwarm(pops[i], rks[i]);
 
     delete [] myThreads;
 
@@ -35,11 +36,12 @@ void particleSwarm(Population** pops)
  * 
  * @param pop The population to optimize
  */
-void runParticleSwarm(Population* pop)
+void runParticleSwarm(Population* pop, RecordKeeper* rk)
 {
 cout << "Starting PSO " << pop->getFunction() + 1 << endl;
     // initialize the population
     initializePSO(pop);
+    clock_t timer;
 
 // cout << "Global Best Fit: " << pop->getGlobalBestFit() << endl;
 cout << "Persnl Best Fit [0]: " << pop->getPBestFit(0) << endl;
@@ -47,6 +49,12 @@ cout << "Persnl Best Fit [0]: " << pop->getPBestFit(0) << endl;
     // run it X times
     for (int i = 0; i < pop->getExperimentations(); ++i)
     {
+        // set funcCalls to 0
+        pop->resetFuncCalls();
+
+        // start timer
+        timer = clock();
+
         // update the full population
         for (int j = 0; j < pop->getPopSize(); ++j)
         {
@@ -59,13 +67,30 @@ cout << "Persnl Best Fit [0]: " << pop->getPBestFit(0) << endl;
             // calculate the fitness
             updateFitness(pop);
 
-            // update pBest and gBest if necessary
+            // update pBest and gBest (if necessary)
             updatePersonalBest(pop);
             updateGlobalBest(pop);
         }
 
+        // end timer and record it
+        timer = clock() - timer;
+        rk->setTimeTaken(double(timer*1000)/CLOCKS_PER_SEC, i);
+
+        // record function calls
+        rk->setFinalFuncCalls(pop->getFuncCalls(), i);
+
+        // add current fit and pBest to records
+        for (int x = 0; x < pop->getPopSize(); ++x)
+        {
+            rk->setHistoricFit(pop->getFitness(x), i, x);
+            rk->setHistoricPBest(pop->getPBestFit(x), i, x);
+        }
+        
+        // add current gBest to records
+        rk->setHistoricGBest(pop->getGlobalBestFit(), i);
+
 // cout << "Global Best Fit: " << pop->getGlobalBestFit() << endl;
-cout << "Persnl Best Fit [0]: " << pop->getPBestFit(0) << endl;
+cout << "Global Best Fit: " << pop->getGlobalBestFit() << endl;
 
     }
 }
@@ -102,7 +127,7 @@ void updateVelocity(Population* pop)
             if (rand1 == 0.0) rand1 = 0.00000000001;
             if (rand2 == 0.0) rand2 = 0.00000000001;
 
-            // create the new velocity value
+            // create the new velocity valuePersnlPersnl
             vel += c1 * rand1 * (pop->getPBestVec(i, j)   - pop->getPopulation(i, j));
             vel += c2 * rand2 * (pop->getGlobalBestVec(j) - pop->getPopulation(i, j));
 
@@ -123,19 +148,22 @@ void updateVelocity(Population* pop)
  */
 void updateParticles(Population* pop)
 {
+    // create a variable to hold info about the position
+    double newPos;
+
     for (int i = 0; i < pop->getPopSize(); ++i)
     {
         for (int j = 0; j < pop->getSolutionSize(); ++j)
         {
             // get a new value for the particle's element
-            double newVal = pop->getPopulation(i, j) + pop->getVelocity(i, j);
+            newPos = pop->getPopulation(i, j) + pop->getVelocity(i, j);
             
             // check the bounds
-            if (newVal > pop->getUpperBound()) newVal = pop->getUpperBound();
-            if (newVal < pop->getLowerBound()) newVal = pop->getLowerBound();
+            if (newPos > pop->getUpperBound()) newPos = pop->getUpperBound();
+            if (newPos < pop->getLowerBound()) newPos = pop->getLowerBound();
             
             // assign the new value to the particle
-            pop->setPopulation(i, j, newVal);
+            pop->setPopulation(i, j, newPos);
         }
     }
 }

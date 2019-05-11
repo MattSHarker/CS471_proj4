@@ -3,9 +3,10 @@
 #define PATRICLE_SWARM_H
 
 #include "Population.h"
+#include "RecordKeeper.h"
 
-void particleSwarm(Population** populations);
-void runParticleSwarm(Population* pop);
+void particleSwarm(Population** populations, RecordKeeper** records);
+void runParticleSwarm(Population* pop, RecordKeeper* record);
 
 void initializePSO(Population* pop);
 

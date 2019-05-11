@@ -1,6 +1,6 @@
 
-#ifndef __RECORD_KEEPER_H
-#define __RECORD_KEEPER_H
+#ifndef RECORD_KEEPER_H
+#define RECORD_KEEPER_H
 
 #include "Parameters.h"
 #include "Population.h"
@@ -9,21 +9,20 @@ class RecordKeeper
 {
 private:
     int experimentations;   // how many experiments there will be
-    int generations;        // how many generations there are
     int numFuncs;           // how many functions the program uses
     int populationSize;     // how many solutions are in the population
     int solutionSize;       // the size of each solution
     int strategies;         // how many strategies are being used
 
-    double** historicCost; // stores the history of solution costs
-    double** finalCosts;    // the final costs of the solutions
+    double*  historicGBest; // stores the history of gBest
+    double** historicPBest; // stores the history of each patricle's pBest
 
-    double*** historicCostStrats; // stores the history of best solutions (per strategy per generation per experiment)
-    double*** finalCostStrats;      // stores all of the final costs for each strategy/exp/pop
+    double** historicFit;   // stores the history of solution costs
+    double** finalFit;      // the final costs of the solutions
 
     // misc stats
     int*    finalFuncCalls; // how many times functions were called
-    double* expTime;        // 1 per experiment
+    double* timeTaken;      // Time taken per
 
 
 public:
@@ -32,35 +31,36 @@ public:
 
     // functions for the single variables
     int getExperimentations();
-    int getGenerations();
     int getNumFuncs();
     int getPopulationSize();
     int getSolutionSize();
     int getStrategies();
 
-    // functions that deal with historicBest
-    void   setHistoricCostStrats(double newCost, const int strategy, const int experiment, const int generation);
-    double getHistoricCostStrats(const int strategy, const int experiment, const int generation);
+    // functions for historicGBest
+    void   setHistoricGBest(double newGBest, const int experiment);
+    double getHistoricGBest(const int experiment);
 
-    // functions for finalCostStrats
-    void   setFinalCostStrats(double newCost, const int strategy, const int experiment, const int generation);
-    double getFinalCostStrats(const int strategy, const int experiment, const int generation);
+    // functions for historicPBest
+    void   setHistoricPBest(double newPBest, const int popSize, const int experiment);
+    double getHistoricPBest(const int popSize, const int experiment);
 
-    // functions that deal with historicCost
-    void   setHistoricCost(double historicCost, const int experiment, const int generation);
-    double getHistoricCost(const int experiment, const int generation);
+    // functions for historicFit
+    void   setHistoricFit(double historicCost, const int population, const int experiment);
+    void   setHistoricFit(double* historicCost, const int population);
+    double getHistoricFit(const int population, const int experiment);
 
-    void   setFinalCost(Population* population, const int experiment);
-    double getFinalCost(const int experiment, const int population);
+    // functions for finalFit
+    void   setFinalFit(double fit, const int population, const int experiment);
+    double getFinalFit(const int population, const int experiment);
 
-    void   setFinalFuncCalls(int funcCalls, const int experiment);
-    int    getFinalFuncCalls(const int experiment);
+    // functions for funcCalls
+    void   setFinalFuncCalls(int funcCalls, const int experimentation);
+    int    getFinalFuncCalls(const int experimentation);
 
-    void   setExpTime(double time, const int experiment);
-    double getExpTime(const int experiment);
+    // functions for experimentTime
+    void   setTimeTaken(double time, const int experiment);
+    double getTimeTaken(const int experiment);
 
 };
-
-
 
 #endif

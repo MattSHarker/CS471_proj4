@@ -2,7 +2,7 @@
  * @file RecordKeeper.cpp
  * @author Matthew
  * @brief Holds information about multiple optiization experimentations
- * @version 1.0
+ * @version 3.0
  * @date 2019-05-03
  * 
  * @copyright Copyright (c) 2019
@@ -20,46 +20,32 @@ using namespace std;
  */
 RecordKeeper::RecordKeeper(Parameters param)
 {
+    // setup variables
     experimentations = param.experimentations;
-    generations      = param.generations;
     numFuncs         = param.numFuncs;
     populationSize   = param.popSize;
     solutionSize     = param.numDims;
-    strategies       = param.strategies;
 
-    // set up historicCostStrats
-    historicCostStrats = new double**[strategies];
-    for (int i = 0; i < strategies; ++i)
-    {
-        historicCostStrats[i] = new double*[experimentations];
+    // setup historicGBest
+    historicGBest = new double[experimentations];
 
-        for (int j = 0; j < experimentations; ++j)
-            historicCostStrats[i][j] = new double[generations];
-    }
+    // setup historicPBest
+    historicPBest = new double*[populationSize];
+    for (int i = 0; i < populationSize; ++i)
+        historicPBest[i] = new double[experimentations];
 
-    // set up finalCostStrats
-    finalCostStrats = new double**[strategies];
-    for (int i = 0; i < strategies; ++i)
-    {
-        finalCostStrats[i] = new double*[experimentations];
+    // setup historicFit
+    historicFit = new double*[populationSize];
+    for (int i = 0; i < populationSize; ++i)
+        historicFit[i] = new double[experimentations];
 
-        for (int j = 0; j < experimentations; ++j)
-            finalCostStrats[i][j] = new double[populationSize];
-    }
+    // setup finalFit
+    finalFit = new double*[populationSize];
+    for (int i = 0; i < populationSize; ++i)
+        finalFit[i] = new double[experimentations];
 
-
-    // setup historicCost
-    historicCost = new double*[experimentations];
-    for (int i = 0; i < experimentations; ++i)
-        historicCost[i] = new double[generations];
-
-    // setup expTime
-    expTime = new double[experimentations];
-
-    // setup finalCosts
-    finalCosts = new double*[experimentations];
-    for (int i = 0; i < experimentations; ++i)
-        finalCosts[i] = new double[populationSize];
+    // setup timeTaken
+    timeTaken = new double[experimentations];
 
     // setup finalFuncCalls
     finalFuncCalls = new int[experimentations];
@@ -71,57 +57,41 @@ RecordKeeper::RecordKeeper(Parameters param)
  */
 RecordKeeper::~RecordKeeper()
 {
-    // destroy historicCostStrats
-    if (historicCostStrats != nullptr)
+    // destroy historicGBest
+    if (historicGBest != nullptr)
+        delete[] historicGBest;
+    
+    // destroy historicPBest
+    if (historicPBest != nullptr)
     {
-        for (int i = 0; i < strategies; ++i)
-        {
-            for (int j = 0; j < experimentations; ++j)
-                delete [] historicCostStrats[i][j];
-            delete [] historicCostStrats[i];
-        }
-        
-        delete [] historicCostStrats;
+        for (int i = 0; i < populationSize; ++i)
+            delete[] historicPBest[i];
+        delete[] historicPBest;
     }
 
-
-    // destroy finalCostStrats
-    if (finalCostStrats != nullptr)
-    {
-        for (int i = 0; i < strategies; ++i)
-        {
-            for (int j = 0; j < experimentations; ++j)
-                delete [] finalCostStrats[i][j];
-            delete [] finalCostStrats[i];
-        }
-        delete [] finalCostStrats;
-    }
-
-
-    // destroy historicCosts
-    if (historicCost != nullptr)
+    // destroy historicFits
+    if (historicFit != nullptr)
     {
         for (int i = 0; i < experimentations; ++i)
-            delete [] historicCost[i];
-        delete [] historicCost;
+            delete[] historicFit[i];
+        delete[] historicFit;
     }
 
-    // destroy expTime
-    if (expTime != nullptr)
-        delete [] expTime;
+    // destroy timeTaken
+    if (timeTaken != nullptr)
+        delete[] timeTaken;
 
-    // destroy finalCost
-    if (finalCosts != nullptr)
+    // destroy finalFit
+    if (finalFit != nullptr)
     {
         for (int i = 0; i < experimentations; ++i)
-            delete [] finalCosts[i];
-
-        delete [] finalCosts;
+            delete[] finalFit[i];
+        delete[] finalFit;
     }
     
     // destroy finalFuncCalls
     if (finalFuncCalls != nullptr)
-        delete [] finalFuncCalls;
+        delete[] finalFuncCalls;
 }
 
 /**
@@ -134,15 +104,6 @@ int RecordKeeper::getExperimentations()
     return experimentations;
 }
 
-/**
- * @brief Returns the number of generations
- * 
- * @return int number of generations
- */
-int RecordKeeper::getGenerations()
-{
-    return generations;
-}
 
 /**
  * @brief Returns the total number of functions
@@ -174,117 +135,79 @@ int RecordKeeper::getSolutionSize()
     return solutionSize;
 }
 
-/**
- * @brief returns the number of strategies
- * 
- * @return int 
- */
-int RecordKeeper::getStrategies()
+
+void RecordKeeper::setHistoricPBest(double newBest, const int vec, const int elem)
 {
-    return strategies;
+    historicPBest[vec][elem] = newBest;
+}
+
+
+double RecordKeeper::getHistoricPBest(const int vec, const int elem)
+{
+    return historicPBest[vec][elem];
+}
+
+void RecordKeeper::setHistoricGBest(double newBest, const int vec)
+{
+    historicGBest[vec] = newBest;
+}
+
+
+double RecordKeeper::getHistoricGBest(const int vec)
+{
+    return historicGBest[vec];
 }
 
 /**
  * @brief Sets the value of one element of historic cost
  * 
- * @param histCost  New value
+ * @param histFit  New value
  * @param expr      Experiment of value
  * @param gen       Generation of the experiment
  */
-void RecordKeeper::setHistoricCost(double histCost, const int expr, const int gen)
+void RecordKeeper::setHistoricFit(double histFit, const int vec, const int elem)
 {
-    historicCost[expr][gen] = histCost;
+    historicFit[vec][elem] = histFit;
+}
+
+
+void RecordKeeper::setHistoricFit(double* histFit, const int vec)
+{
+    for (int i = 0; i < populationSize; ++i)
+        historicFit[i][vec] = histFit[i];
 }
 
 /**
- * @brief Returns one value from historicCost
+ * @brief Returns one value from historicFit
  * 
  * @param expr      Experiment of value
  * @param gen       Generation of experiment
  * @return double   Value of historic cost
  */
-double RecordKeeper::getHistoricCost(const int expr, const int gen)
+double RecordKeeper::getHistoricFit(const int vec, const int elem)
 {
-    return historicCost[expr][gen];
+    return historicFit[vec][elem];
 }
 
-/**
- * @brief Sets one value of historic cost strats
- * 
- * @param newCost   New value
- * @param strat     The strategy
- * @param expr      The experimentation of the strategy
- * @param gen       The generation of the experimentation
- */
-void RecordKeeper::setHistoricCostStrats(double newCost, const int strat, const int expr, const int gen)
+
+
+
+void RecordKeeper::setFinalFit(double newFit, const int vec, const int elem)
 {
-    historicCostStrats[strat][expr][gen] = newCost;
+    finalFit[vec][elem] = newFit;
 }
 
-/**
- * @brief Returns one value from historicCostStrats
- * 
- * @param strat     The strategy
- * @param expr      The experiment of the strategy
- * @param gen       The generation of the experiment
- * @return double   The value of histCostStrats
- */
-double RecordKeeper::getHistoricCostStrats(const int strat, const int expr, const int gen)
-{
-    return historicCostStrats[strat][expr][gen];
-}
 
 /**
- * @brief Sets one value of finalCostStrats
- * 
- * @param newCost   The new value
- * @param strat     The strategy
- * @param expr      The experiment of the strategy
- * @param gen       The generation of the strategy
- */
-void RecordKeeper::setFinalCostStrats(double newCost, const int strat, const int expr, const int gen)
-{
-    finalCostStrats[strat][expr][gen] = newCost;
-}
-
-/**
- * @brief Returns pne value from finalCostStrats
- * 
- * @param strat     The strategy
- * @param expr      The experiment of the strategy
- * @param gen       The generation of the strategy
- * @return double   The value being returned
- */
-double RecordKeeper::getFinalCostStrats(const int strat, const int expr, const int gen)
-{
-    return finalCostStrats[strat][expr][gen];
-}
-
-/**
- * @brief Sets an array of finalCost
- * 
- * @param pop   The population
- * @param expr  The index of the cost array
- */
-void RecordKeeper::setFinalCost(Population* pop, const int expr)
-{
-    // write each cost to the corresponding experimentation array
-    for (int i = 0; i < populationSize; ++i)
-    {
-        finalCosts[expr][i] = pop->getCost(i);
-    }
-}
-
-/**
- * @brief Returns a value from finalCost
+ * @brief Returns a value from finalFit
  * 
  * @param expr      The experimentation
  * @param pop       The Population
- * @return double   The value from finalCosts
+ * @return double   The value from finalFit
  */
-double RecordKeeper::getFinalCost(const int expr, const int pop)
+double RecordKeeper::getFinalFit(const int expr, const int pop)
 {
-    return finalCosts[expr][pop];
+    return finalFit[expr][pop];
 }
 
 /**
@@ -311,25 +234,25 @@ int RecordKeeper::getFinalFuncCalls(const int expr)
 }
 
 /**
- * @brief Sets the value of expTime
+ * @brief Sets the value of timeTaken
  * 
- * @param newTime   The new value for expTime
+ * @param newTime   The new value for timeTaken
  * @param expr      The experiment
  */
-void RecordKeeper::setExpTime(double newTime, const int expr)
+void RecordKeeper::setTimeTaken(double newTime, const int expr)
 {
-    expTime[expr] = newTime;
+    timeTaken[expr] = newTime;
 }
 
 /**
- * @brief Returns a value from expTime
+ * @brief Returns a value from timeTaken
  * 
  * @param expr      The index of the value to return
  * @return double   The value veing returned
  */
-double RecordKeeper::getExpTime(const int expr)
+double RecordKeeper::getTimeTaken(const int expr)
 {
-    return expTime[expr];
+    return timeTaken[expr];
 }
 
 
