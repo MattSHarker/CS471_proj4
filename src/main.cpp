@@ -14,11 +14,11 @@
  * 
  */
 
-#include <iostream>
-
+#include "csv.h"
 #include "Parameters.h"
 #include "particleSwarm.h"
 #include "Population.h"
+#include "RecordKeeper.h"
 
 using namespace std;
 
@@ -44,9 +44,10 @@ int main()
         rks[i] = new RecordKeeper(params);
 
     // run PSO
-    cout << "Starting Particle Swarm optimization...\n";
     particleSwarm(pops, rks);
-    cout << "Particle Swarm optimization completed\n";
+
+    // create CSV for PSO
+    particleCSVs(pops, rks);
 
     // destroy the Population \m/ 
     for (int i = 0; i < params.numFuncs; ++i)
