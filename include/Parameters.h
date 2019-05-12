@@ -15,6 +15,7 @@ struct Parameters
     float* highRanges;
 
     // PSO variables
+    double dampener;
     double velConst1;
     double velConst2;
 

@@ -123,6 +123,7 @@ Parameters getParameters()
         // retreive the variables
         file2 >> params.experimentations;
         file2 >> params.popSize;
+        file2 >> params.dampener;
         file2 >> params.velConst1;
         file2 >> params.velConst2;
         file2 >> params.alpha;
