@@ -1,8 +1,8 @@
 50
-200
-100
-1.2
-1.2
+50
+0.9
+2.0
+2.0
 0.5
 0.2
 1.0
@@ -10,10 +10,11 @@
 ------
 line - name               | explanation          | allowable ranges or default values
 
-1  - experimentations     | iterations           | 100+
+1  - experimentations     | iterations           | 500+
 2  - population size      | population size      | 500+
-4  - c1                   | velocity constant 1  | (0-2]
-5  - c2                   | velocity constant 2  | (0-2]
+3  - k                    | velocity dampener    | [0.8-1.2]
+4  - c1                   | velConst1 (pBest)    | (0-2]
+5  - c2                   | velConst2 (gBest)    | (0-2]
 6  - alpha                | movement constant    | 0.5
 7  - beta                 | attractivenes const  | 0.2
 8  - gamma                | general FA constant  | 1.0
