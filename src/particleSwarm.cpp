@@ -1,5 +1,4 @@
 
-#include <ctime>
 #include <iostream>
 #include <random>
 #include <thread>
@@ -15,20 +14,29 @@ using namespace std;
  */
 void particleSwarm(Population** pops, RecordKeeper** rks)
 {
-    int funcs = pops[0]->getNumFuncs();
-    thread* myThreads = new thread[funcs];
-/*
-    for (int i = 0; i < funcs; ++i)
+    cout << "Starting Particle Swarm optimization...\n";
+
+    // create threads
+    thread* myThreads = new thread[pops[0]->getNumFuncs()];
+
+    // start threads
+    for (int i = 0; i < pops[0]->getNumFuncs(); ++i)
         myThreads[i] = thread(runParticleSwarm, pops[i], rks[i]);
     
-    for (int i = 0; i < funcs; ++i)
+    // join threads
+    for (int i = 0; i < pops[0]->getNumFuncs(); ++i)
         myThreads[i].join();
-*/
-    for (int i = 0; i < funcs; ++i)
-        runParticleSwarm(pops[i], rks[i]);
+/*
 
+    for (int i = 0; i < pops[0]->getNumFuncs(); ++i)
+        runParticleSwarm(pops[i], rks[i]);
+*/
+
+
+    // destroy the threads
     delete [] myThreads;
 
+    cout << "Particle Swarm optimization completed\n";
 }
 
 /**
@@ -38,13 +46,11 @@ void particleSwarm(Population** pops, RecordKeeper** rks)
  */
 void runParticleSwarm(Population* pop, RecordKeeper* rk)
 {
-cout << "Starting PSO " << pop->getFunction() + 1 << endl;
     // initialize the population
     initializePSO(pop);
-    clock_t timer;
 
-// cout << "Global Best Fit: " << pop->getGlobalBestFit() << endl;
-cout << "Persnl Best Fit [0]: " << pop->getPBestFit(0) << endl;
+    // create a timer
+    clock_t timer;
 
     // run it X times
     for (int i = 0; i < pop->getExperimentations(); ++i)
@@ -74,24 +80,9 @@ cout << "Persnl Best Fit [0]: " << pop->getPBestFit(0) << endl;
 
         // end timer and record it
         timer = clock() - timer;
-        rk->setTimeTaken(double(timer*1000)/CLOCKS_PER_SEC, i);
 
-        // record function calls
-        rk->setFinalFuncCalls(pop->getFuncCalls(), i);
-
-        // add current fit and pBest to records
-        for (int x = 0; x < pop->getPopSize(); ++x)
-        {
-            rk->setHistoricFit(pop->getFitness(x), i, x);
-            rk->setHistoricPBest(pop->getPBestFit(x), i, x);
-        }
-        
-        // add current gBest to records
-        rk->setHistoricGBest(pop->getGlobalBestFit(), i);
-
-// cout << "Global Best Fit: " << pop->getGlobalBestFit() << endl;
-cout << "Global Best Fit: " << pop->getGlobalBestFit() << endl;
-
+        // update record
+        updateRecords(pop, rk, timer, i);
     }
 }
 
@@ -109,30 +100,37 @@ void updateVelocity(Population* pop)
     uniform_real_distribution<double> distr(0, 1);
 
     // get the velocity constants
+    double k   = pop->getDampener();
     double c1  = pop->getVelConst1();
     double c2  = pop->getVelConst2();
 
+    // variables for the algorithm
+    double vel;
+    double pos;
+    double rand1;
+    double rand2;
+    
     for (int i = 0; i < pop->getPopSize(); ++i)
     {
         for (int j = 0; j < pop->getSolutionSize(); ++j)
         {
             // get the velocity
-            double vel = pop->getVelocity(i, j);
+            pos = pop->getVelocity(i, j);
 
-            // calculate the velocity
-            double rand1 = distr(mt);
-            double rand2 = distr(mt);
+            // create random variables ensure they are not 0
+            do { rand1 = distr(mt); } while (rand1 == 0.0);
+            do { rand2 = distr(mt); } while (rand2 == 0.0);
 
-            // ensure that 0 is not a possible value
-            if (rand1 == 0.0) rand1 = 0.00000000001;
-            if (rand2 == 0.0) rand2 = 0.00000000001;
-
-            // create the new velocity valuePersnlPersnl
-            vel += c1 * rand1 * (pop->getPBestVec(i, j)   - pop->getPopulation(i, j));
+            // create and adjust the new velocity
+            vel  = c1 * rand1 * (pop->getPBestVec(i, j)   - pop->getPopulation(i, j));
             vel += c2 * rand2 * (pop->getGlobalBestVec(j) - pop->getPopulation(i, j));
+            vel *= k;
+
+            // adjust the position
+            pos += vel;
 
             // set the new velocity value
-            pop->setVelocity(i, j, vel);
+            pop->setVelocity(i, j, pos);
         }
     }
 }
@@ -293,5 +291,24 @@ void initializePSO(Population* pop)
     for (int i = 0; i < pop->getSolutionSize(); ++i)
         pop->setGlobalBestVec(i, pop->getPopulation(bestInd, i));
 
+}
+
+void updateRecords(Population* pop, RecordKeeper* rk, const clock_t timer, const int iter)
+{
+    // save the time taken
+    rk->setTimeTaken(double(timer*1000)/CLOCKS_PER_SEC, iter);
+
+    // record function calls
+    rk->setFinalFuncCalls(pop->getFuncCalls(), iter);
+
+    // add current fit and pBest to records
+    for (int x = 0; x < pop->getPopSize(); ++x)
+    {
+        rk->setHistoricFit(pop->getFitness(x), x, iter);
+        rk->setHistoricPBest(pop->getPBestFit(x), x, iter);
+    }
+    
+    // add current gBest to records
+    rk->setHistoricGBest(pop->getGlobalBestFit(), iter);
 }
 
