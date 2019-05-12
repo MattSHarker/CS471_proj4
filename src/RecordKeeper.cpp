@@ -72,7 +72,7 @@ RecordKeeper::~RecordKeeper()
     // destroy historicFits
     if (historicFit != nullptr)
     {
-        for (int i = 0; i < experimentations; ++i)
+        for (int i = 0; i < populationSize; ++i)
             delete[] historicFit[i];
         delete[] historicFit;
     }
@@ -84,7 +84,7 @@ RecordKeeper::~RecordKeeper()
     // destroy finalFit
     if (finalFit != nullptr)
     {
-        for (int i = 0; i < experimentations; ++i)
+        for (int i = 0; i < populationSize; ++i)
             delete[] finalFit[i];
         delete[] finalFit;
     }

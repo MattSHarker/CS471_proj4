@@ -42,7 +42,7 @@ public:
 
     // functions for historicPBest
     void   setHistoricPBest(double newPBest, const int popSize, const int experiment);
-    double getHistoricPBest(const int popSize, const int experiment);
+    double getHistoricPBest(const int particle, const int experiment);
 
     // functions for historicFit
     void   setHistoricFit(double historicCost, const int population, const int experiment);
