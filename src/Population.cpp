@@ -32,6 +32,7 @@ Population::Population(Parameters params, const int func)
     solutionSize     = params.numDims;
     experimentations = params.experimentations;
     numFuncs         = params.numFuncs;
+    dampener         = params.dampener;
     velConst1        = params.velConst1;
     velConst2        = params.velConst2;
     function         = func;
@@ -193,6 +194,16 @@ int Population::getFunction()
 int Population::getNumFuncs()
 {
     return numFuncs;
+}
+
+/**
+ * @brief Returns the value of the dampener variable.
+ *          Dampener affects the overall velocity of a particle's movement.
+ * 
+ */
+double Population::getDampener()
+{
+    return dampener;
 }
 
 /**

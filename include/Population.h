@@ -17,10 +17,11 @@ private:
     double lowerBound;      // the lowest acceptable value of an element in a solution
     double upperBound;      // the highest acceptable value of an element in a solution
 
-    double velConst1;       // two constants to modify velocity for PSO
+    double dampener;        // constants to modify velocity for PSO
+    double velConst1;       
     double velConst2;
 
-    double alpha;           // three constants for FFO
+    double alpha;           // constants for FFO
     double beta;            
     double gamma;           
 
@@ -48,6 +49,7 @@ public:
     int    getSolutionSize();
     double getLowerBound();
     double getUpperBound();
+    double getDampener();
     double getVelConst1();
     double getVelConst2();
     double getAlpha();
