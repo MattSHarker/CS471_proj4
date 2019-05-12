@@ -1,24 +1,16 @@
 
-#ifndef __CSV_GENERATOR_H
-#define __CSV_GENERATOR_H
+#ifndef CSV_H
+#define CSV_H
 
-#include "RecordKeeper.h"
 #include "Population.h"
+#include "RecordKeeper.h"
 
 // CSVs for genetic algorithm
-void geneticCSVs(Population** pops, RecordKeeper** recordKeeper);
+void particleCSVs(Population** pops, RecordKeeper** recordKeeper);
 
-void geneticFinalBestFitness(RecordKeeper** recordKeeper, Population** pop);
-void geneticFuncCalls(RecordKeeper** recordKeepers);
-void geneticHistoricCosts(RecordKeeper* recordKeeper, const int func);
-void geneticTime(RecordKeeper** recordKeepers);
+// void 
+void particlePBestFit(RecordKeeper* rk, const int function);
+void particleGBestFit(RecordKeeper** records);
 
-// CSVs for differential evolution
-void differentialCSVs(Population** pops, RecordKeeper** recordKeepers);
-
-void differentialFinalBestFitness(RecordKeeper** recordKeeper, Population** pop, const int strat);
-void differentialFuncCalls(RecordKeeper** recordKeepers);
-void differentialHistoricCosts(RecordKeeper* recordKeeper, const int strat, const int func);
-void differentialTime(RecordKeeper** recordKeepers);
 
 #endif
