@@ -1,4 +1,4 @@
-30
+500
 30
 18
 -512,512
@@ -21,7 +21,7 @@
 -100,100
 
 #--------------
-1 - Number of vectors (30+)
+1 - Number of vectors (500+)
 2 - dimensions (30)
 3 - Number of Functions (18)
 4 - Ranges
