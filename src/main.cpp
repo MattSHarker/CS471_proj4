@@ -15,6 +15,7 @@
  */
 
 #include "csv.h"
+#include "firefly.h"
 #include "Parameters.h"
 #include "particleSwarm.h"
 #include "Population.h"
@@ -44,10 +45,13 @@ int main()
         rks[i] = new RecordKeeper(params);
 
     // run PSO
-    particleSwarm(pops, rks);
+    // particleSwarm(pops, rks);
 
     // create CSV for PSO
-    particleCSVs(pops, rks);
+    // particleCSVs(pops, rks);
+
+    // run FFA
+    firefly(pops);
 
     // destroy the Population \m/ 
     for (int i = 0; i < params.numFuncs; ++i)
