@@ -19,6 +19,11 @@ struct Parameters
     double velConst1;
     double velConst2;
 
+    // HS variables
+    double bandwidth;
+    double hmcr;
+    double par;
+
     // FFO variables
     double alpha;
     double beta;

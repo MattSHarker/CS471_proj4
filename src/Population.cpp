@@ -32,9 +32,19 @@ Population::Population(Parameters params, const int func)
     solutionSize     = params.numDims;
     experimentations = params.experimentations;
     numFuncs         = params.numFuncs;
+
     dampener         = params.dampener;
     velConst1        = params.velConst1;
     velConst2        = params.velConst2;
+
+    alpha            = params.alpha;
+    beta             = params.beta;
+    gamma            = params.gamma;
+
+    bandwidth        = params.bandwidth;
+    hmcr             = params.hmcr;
+    par              = params.par;
+
     function         = func;
     funcCalls        = 0;
 
@@ -255,6 +265,22 @@ double Population::getBeta()
 double Population::getGamma()
 {
     return gamma;
+}
+
+
+double Population::getBandwidth()
+{
+    return bandwidth;
+}
+
+double Population::getHMCR()
+{
+    return hmcr;
+}
+
+double Population::getPAR()
+{
+    return par;
 }
 
 /**

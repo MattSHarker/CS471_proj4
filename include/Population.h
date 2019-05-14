@@ -17,13 +17,17 @@ private:
     double lowerBound;      // the lowest acceptable value of an element in a solution
     double upperBound;      // the highest acceptable value of an element in a solution
 
-    double dampener;        // constants to modify velocity for PSO
+    double dampener;        // constants for PSO
     double velConst1;       
     double velConst2;
 
     double alpha;           // constants for FFO
     double beta;            
     double gamma;           
+
+    double bandwidth;       // constants for HS
+    double hmcr;
+    double par;
 
     double*  fitness;       // the normalized cost of a function
     double** population;    // the genes of the population (an array of gene pointers)
@@ -49,12 +53,18 @@ public:
     int     getSolutionSize();
     double  getLowerBound();
     double  getUpperBound();
+
     double  getDampener();
     double  getVelConst1();
     double  getVelConst2();
+
     double  getAlpha();
     double  getBeta();
     double  getGamma();
+
+    double  getBandwidth();
+    double  getHMCR();
+    double  getPAR();
 
     // functions for funcCalls
     int     getFuncCalls();
