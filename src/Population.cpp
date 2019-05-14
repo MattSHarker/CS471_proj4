@@ -467,6 +467,17 @@ void Population::generateOneFitness(const int index)
 }
 
 /**
+ * @brief Sets the value of an element of the fitness array
+ * 
+ * @param index     The element to change
+ * @param newFit    The value to change the element to
+ */
+void Population::setFitness(const int index, double newFit)
+{
+    fitness[index] = newFit;
+}
+
+/**
  * @brief Returns the fitness of a solution
  * 
  * @param index     Index of solution
@@ -510,4 +521,57 @@ double Population::getVelocity(const int vec, const int elem)
 {
     return velocity[vec][elem];
 }
+
+
+/**
+ * @brief A method of insertion sort which will sort the
+ *          population matrix and the fitness matrix.
+ *        The population matrix will be sorted according to
+ *          each solution vector's corresponding fitness. The
+ *          fitness array will also be sorted as well.
+ * 
+ */
+void Population::sortPopulation()
+{
+    // create a temporary array to hold a solution vector
+    double* curSol = new double[solutionSize];
+
+    // create a variabe to hold a fitness
+    double curFit;
+
+    // for every solution in the matrix
+    for (int i = 0; i < popSize; ++i)
+    {
+        // get the fitness to sort
+        curFit = fitness[i];
+
+        // get the initial index to compare
+        int j = i - 1;
+
+        // for the remainder of the unsorted array
+        while (j >= 0 && fitness[j] < curFit)   /* double check the right comparator */
+        {
+            // move the compared fitness forward one
+            fitness[j+1] = fitness[j];
+
+            // move the corresponding solution vector forward one position
+            for (int x = 0; x < solutionSize; ++x)
+                curSol[x] = population[j][x];
+            
+            // move the index backwards
+            --j;
+        }
+
+        // move the initial fitness into its sorted position
+        fitness[j+1] = curFit;
+
+        // move the corresponding solution vector into its sorted position
+        for (int x = 0; x < solutionSize; ++x)
+            population[j+1][x] = curSol[x];
+    }
+
+    // destroy the array
+    delete [] curSol;
+}
+
 

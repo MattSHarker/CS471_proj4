@@ -43,44 +43,45 @@ public:
     ~Population();
 
     // functions for single variables
-    int    getExperimentations();
-    int    getNumFuncs();
-    int    getPopSize();
-    int    getSolutionSize();
-    double getLowerBound();
-    double getUpperBound();
-    double getDampener();
-    double getVelConst1();
-    double getVelConst2();
-    double getAlpha();
-    double getBeta();
-    double getGamma();
+    int     getExperimentations();
+    int     getNumFuncs();
+    int     getPopSize();
+    int     getSolutionSize();
+    double  getLowerBound();
+    double  getUpperBound();
+    double  getDampener();
+    double  getVelConst1();
+    double  getVelConst2();
+    double  getAlpha();
+    double  getBeta();
+    double  getGamma();
 
     // functions for funcCalls
-    int  getFuncCalls();
-    void resetFuncCalls();
-    void incrimentFuncCalls();
+    int     getFuncCalls();
+    void    resetFuncCalls();
+    void    incrimentFuncCalls();
 
     // functions for function
-    int  getFunction();
-    void setFunction(const int newFunc);
+    int     getFunction();
+    void    setFunction(const int newFunc);
 
     // functions for pBestVec and pBestFit
-    void   setPBestVec(const int vec, const int elem, double newVal);
-    void   setPBestFit(const int vec, double newFit);
-    double getPBestVec(const int vec, const int elem);
-    double getPBestFit(const int vec);
+    void    setPBestVec(const int vec, const int elem, double newVal);
+    void    setPBestFit(const int vec, double newFit);
+    double  getPBestVec(const int vec, const int elem);
+    double  getPBestFit(const int vec);
 
     // functions for globBestVec and globBestFit
-    void   setGlobalBestVec(const int elem, double newBest);
-    void   setGlobalBestFit(double newBest);
-    double getGlobalBestVec(const int elem);
-    double getGlobalBestFit();
+    void    setGlobalBestVec(const int elem, double newBest);
+    void    setGlobalBestFit(double newBest);
+    double  getGlobalBestVec(const int elem);
+    double  getGlobalBestFit();
 
     // functions for fitness
     int     getIndexOfBest();
     void    generateAllFitness();
     void    generateOneFitness(const int solutionIndex);
+    void    setFitness(const int index, double newFitness);
     double  getFitness(const int index);
     double* getFitness();
 
@@ -91,8 +92,11 @@ public:
     double* getPopulation(const int vec);
 
     // functions for velocity
-    void   setVelocity(const int vec, const int elem, double newValue);
-    double getVelocity(const int vec, const int elem);
+    void    setVelocity(const int vec, const int elem, double newValue);
+    double  getVelocity(const int vec, const int elem);
+
+    // misc functions
+    void    sortPopulation();
 
 };
 
