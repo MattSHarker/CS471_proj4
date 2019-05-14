@@ -124,10 +124,10 @@ void updateVelocity(Population* pop)
             // create and adjust the new velocity
             vel  = c1 * rand1 * (pop->getPBestVec(i, j)   - pop->getPopulation(i, j));
             vel += c2 * rand2 * (pop->getGlobalBestVec(j) - pop->getPopulation(i, j));
-            vel *= k;
 
-            // adjust the position
+            // adjust the position and dampen it
             pos += vel;
+            pos *= k;
 
             // set the new velocity value
             pop->setVelocity(i, j, pos);
@@ -268,7 +268,6 @@ void initializePSO(Population* pop)
     // generate the fitness array
     pop->generateAllFitness();
 
-
     // generate the personal best matrix and array
     // copy the current population into the personal best matrix
     for (int i = 0; i < pop->getPopSize(); ++i)
@@ -281,7 +280,7 @@ void initializePSO(Population* pop)
 
     // generate the global best array and variable
     // get the best index and its fitness
-    int bestInd = pop->getIndexOfBest();
+    int    bestInd = pop->getIndexOfBest();
     double curBest = pop->getFitness(bestInd);
 
     // set the global best fitness
