@@ -37,31 +37,24 @@ void runFirefly(Population* pop)
     
     // variables for the algorithm
     double r;
-    double li1;
-    double li2;
 
     // create an array to hold a temporary position
     double* newPos = new double[pop->getSolutionSize()];
-
+    
     // for each iteration
     for (int t = 0; t < pop->getExperimentations(); ++t)
     {
-        // for each firefly
+        // for each firefly&
         for (int i = 0; i < pop->getPopSize(); ++i)
         {
             // for each firefly again
             for (int j = 0; j < pop->getPopSize(); ++j)
             {
-// cout << "here1\n";
                 // get the distance (eq 3, 2)
                 r = ffDistance(pop, i, j);
 
-                // calculate the two light intensities (eq 1)
-                li1 = intensity(pop, i, r);
-                li2 = intensity(pop, j, r);
-
                 // only move the firefly if it is worse
-                if (li2 < li1)
+                if (intensity(pop, j, r) < intensity(pop, i, r))
                 {                  
                     // move firefly i towards firefly j (equation 4)
                     // (get a new position for a firefly)
@@ -106,7 +99,6 @@ void initializeFFO(Population* pop)
 
 
 // light intensity
-// needs to be fixed (figure out what original intensity means)
 double intensity(Population* pop, const int ff, double r)
 {
     double intensity = pop->getFitness(ff);
@@ -116,6 +108,7 @@ double intensity(Population* pop, const int ff, double r)
 
     return intensity;
 }
+
 
 // attractiveness
 double equationTwo(Population* pop, double r)
@@ -146,6 +139,7 @@ double ffDistance(Population* pop, const int ff1, const int ff2)
     // take the square root of the summation
     return pow(sum, 0.5);
 }
+
 
 // Create a new position
 void equationFour(Population* pop, double* newPos, const int r, const int ff1, const int ff2)
