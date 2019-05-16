@@ -566,7 +566,7 @@ void Population::sortPopulation()
     double curFit;
 
     // for every solution in the matrix
-    for (int i = 0; i < popSize; ++i)
+    for (int i = 1; i < popSize; ++i)
     {
         // get the fitness to sort
         curFit = fitness[i];
@@ -575,7 +575,7 @@ void Population::sortPopulation()
         int j = i - 1;
 
         // for the remainder of the unsorted array
-        while (j >= 0 && fitness[j] < curFit)   /* double check the right comparator */
+        while (j >= 0 && fitness[j] > curFit)   /* double check the right comparator */
         {
             // move the compared fitness forward one
             fitness[j+1] = fitness[j];

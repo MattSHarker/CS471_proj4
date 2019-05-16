@@ -2,6 +2,7 @@
 #ifndef POPULATION_H
 #define POPULATION_H
 
+#include <random>
 #include "Parameters.h"
 
 class Population {
@@ -107,7 +108,6 @@ public:
 
     // misc functions
     void    sortPopulation();
-
 };
 
 #endif
