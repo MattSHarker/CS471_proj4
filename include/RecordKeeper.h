@@ -17,6 +17,9 @@ private:
     double*  historicGBest; // stores the history of gBest
     double** historicPBest; // stores the history of each patricle's pBest
 
+    double* historicBestFit;
+    double* historicWorstFit;
+
     double** historicFit;   // stores the history of solution costs
     double** finalFit;      // the final costs of the solutions
 
@@ -43,6 +46,12 @@ public:
     // functions for historicPBest
     void   setHistoricPBest(double newPBest, const int popSize, const int experiment);
     double getHistoricPBest(const int particle, const int experiment);
+
+    // functions for historicBestFit and historicWorstFit
+    void   setHistoricBestFit(double newBest, const int element);
+    void   setHistoricWorstFit(double newBest, const int element);
+    double getHistoricBestFit(const int element);
+    double getHistoricWorstFit(const int element);
 
     // functions for historicFit
     void   setHistoricFit(double historicCost, const int population, const int experiment);

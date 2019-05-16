@@ -34,6 +34,10 @@ RecordKeeper::RecordKeeper(Parameters param)
     for (int i = 0; i < populationSize; ++i)
         historicPBest[i] = new double[experimentations];
 
+    // setup historicBestFit and historicWorstFit
+    historicBestFit  = new double[experimentations];
+    historicWorstFit = new double[experimentations];
+
     // setup historicFit
     historicFit = new double*[populationSize];
     for (int i = 0; i < populationSize; ++i)
@@ -69,13 +73,21 @@ RecordKeeper::~RecordKeeper()
         delete[] historicPBest;
     }
 
+    // destroy historicBestFit
+    if (historicBestFit != nullptr)
+        delete[] historicBestFit;
+    
+    // destroy historicWorstFit
+    if (historicWorstFit != nullptr)
+        delete[] historicWorstFit;
+
     // destroy historicFits
     if (historicFit != nullptr)
     {
         for (int i = 0; i < populationSize; ++i)
             delete[] historicFit[i];
         delete[] historicFit;
-    }
+    } 
 
     // destroy timeTaken
     if (timeTaken != nullptr)
@@ -190,6 +202,27 @@ double RecordKeeper::getHistoricFit(const int vec, const int elem)
 }
 
 
+void RecordKeeper::setHistoricBestFit(double newBest, const int elem)
+{
+    historicBestFit[elem] = newBest;
+}
+
+
+void RecordKeeper::setHistoricWorstFit(double newBest, const int elem)
+{
+    historicWorstFit[elem] = newBest;
+}
+
+double RecordKeeper::getHistoricBestFit(const int elem)
+{
+    return historicBestFit[elem];
+}
+
+
+double RecordKeeper::getHistoricWorstFit(const int elem)
+{
+    return historicWorstFit[elem];
+}
 
 
 void RecordKeeper::setFinalFit(double newFit, const int vec, const int elem)
