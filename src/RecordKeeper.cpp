@@ -2,8 +2,8 @@
  * @file RecordKeeper.cpp
  * @author Matthew
  * @brief Holds information about multiple optiization experimentations
- * @version 3.0
- * @date 2019-05-03
+ * @version 4.0
+ * @date 2019-05-20
  * 
  * @copyright Copyright (c) 2019
  * 
@@ -147,24 +147,49 @@ int RecordKeeper::getSolutionSize()
     return solutionSize;
 }
 
-
+/**
+ * @brief Sets an element of the historicPBest matrix
+ * 
+ * @param newBest   The value to set the element to
+ * @param vec       The vector the element being set is in
+ * @param elem      The element of the vector to set
+ */
 void RecordKeeper::setHistoricPBest(double newBest, const int vec, const int elem)
 {
     historicPBest[vec][elem] = newBest;
 }
 
-
+/**
+ * @brief Returns the value of an element in the historicPBest matrix
+ * 
+ * @param vec       The vector the element is in
+ * @param elem      The element of the vector to return
+ * @return double   The value of the specified element
+ */
 double RecordKeeper::getHistoricPBest(const int vec, const int elem)
 {
     return historicPBest[vec][elem];
 }
 
+/**
+ * @brief Sets an element of the historicGBest matrix
+ * 
+ * @param newBest   The value to set the element to
+ * @param vec       The vector the element being set is in
+ * @param elem      The element of the vector to set
+ */
 void RecordKeeper::setHistoricGBest(double newBest, const int vec)
 {
     historicGBest[vec] = newBest;
 }
 
-
+/**
+ * @brief Returns the value of an element in the historicGBest matrix
+ * 
+ * @param vec       The vector the element is in
+ * @param elem      The element of the vector to return
+ * @return double   The value of the specified element
+ */
 double RecordKeeper::getHistoricGBest(const int vec)
 {
     return historicGBest[vec];
@@ -182,7 +207,12 @@ void RecordKeeper::setHistoricFit(double histFit, const int vec, const int elem)
     historicFit[vec][elem] = histFit;
 }
 
-
+/**
+ * @brief Sets the value of a vector in the historicFit matrix
+ * 
+ * @param histFit   The array of value to set
+ * @param vec       The array to be written to
+ */
 void RecordKeeper::setHistoricFit(double* histFit, const int vec)
 {
     for (int i = 0; i < populationSize; ++i)
@@ -201,30 +231,58 @@ double RecordKeeper::getHistoricFit(const int vec, const int elem)
     return historicFit[vec][elem];
 }
 
-
+/**
+ * @brief Sets the value of an element in the historic best fit array
+ * 
+ * @param newBest   The new value to set the element to
+ * @param elem      The element whose value is being changed
+ */
 void RecordKeeper::setHistoricBestFit(double newBest, const int elem)
 {
     historicBestFit[elem] = newBest;
 }
 
-
+/**
+ * @brief Sets the value of an element in the historiWorstFit array
+ * 
+ * @param newBest   The new value to set the element to
+ * @param elem      The element whose value is being changed
+ */
 void RecordKeeper::setHistoricWorstFit(double newBest, const int elem)
 {
     historicWorstFit[elem] = newBest;
 }
 
+
+/**
+ * @brief Returns a value from an element in the historicBestFit array
+ * 
+ * @param elem      The element whose value is being returned
+ * @return double   The value of the specified element
+ */
 double RecordKeeper::getHistoricBestFit(const int elem)
 {
     return historicBestFit[elem];
 }
 
-
+/**
+ * @brief Returns a value from an element in the historicWorstFit array
+ * 
+ * @param elem      The element whose value is being returned
+ * @return double   The value of the specified element
+ */
 double RecordKeeper::getHistoricWorstFit(const int elem)
 {
     return historicWorstFit[elem];
 }
 
-
+/**
+ * @brief Sets an element of the finalFit matrix
+ * 
+ * @param newFit    The value to set the specified element to
+ * @param vec       The vector containing the element to be set
+ * @param elem      The element whose value is being set
+ */
 void RecordKeeper::setFinalFit(double newFit, const int vec, const int elem)
 {
     finalFit[vec][elem] = newFit;

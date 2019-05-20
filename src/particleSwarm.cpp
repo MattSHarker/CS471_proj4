@@ -1,4 +1,15 @@
 
+/**
+ * @file particleSwarm.cpp
+ * @author Matthew Harker
+ * @brief Optimizes a population using the Particle Swarm algorithm
+ * @version 1.0
+ * @date 2019-05-20
+ * 
+ * @copyright Copyright (c) 2019
+ * 
+ */
+#include <cfloat>
 #include <iostream>
 #include <random>
 #include <thread>
@@ -26,12 +37,6 @@ void particleSwarm(Population** pops, RecordKeeper** rks)
     // join threads
     for (int i = 0; i < pops[0]->getNumFuncs(); ++i)
         myThreads[i].join();
-/*
-
-    for (int i = 0; i < pops[0]->getNumFuncs(); ++i)
-        runParticleSwarm(pops[i], rks[i]);
-*/
-
 
     // destroy the threads
     delete [] myThreads;
@@ -84,6 +89,10 @@ void runParticleSwarm(Population* pop, RecordKeeper* rk)
         // update record
         updateRecords(pop, rk, timer, i);
     }
+
+    // record the final best
+    for (int i = 0; i < pop->getPopSize(); ++i)
+        rk->setFinalFit(pop->getFitness(i), i, 0);
 }
 
 /**
@@ -292,6 +301,14 @@ void initializePSO(Population* pop)
 
 }
 
+/**
+ * @brief Updates a RecordKeeper object based on the most recent iteration
+ * 
+ * @param pop   The population object to get info from
+ * @param rk    The RecordKeeper object to write info to
+ * @param timer Records the legnth of each iteration
+ * @param iter  Which iteration is being recorded
+ */
 void updateRecords(Population* pop, RecordKeeper* rk, const clock_t timer, const int iter)
 {
     // save the time taken
@@ -309,5 +326,21 @@ void updateRecords(Population* pop, RecordKeeper* rk, const clock_t timer, const
     
     // add current gBest to records
     rk->setHistoricGBest(pop->getGlobalBestFit(), iter);
+
+    // find the index of the worst partile
+    int index = 0;
+    double tempFit = DBL_MIN;
+    for (int i = 0; i < pop->getPopSize(); ++i)
+    {
+        double curFit = pop->getFitness(i);
+        if (tempFit < curFit)
+        {
+            tempFit = curFit;
+            index = i;
+        }
+    }
+
+    // record the worst fitness
+    rk->setHistoricWorstFit(pop->getFitness(index), iter);
 }
 

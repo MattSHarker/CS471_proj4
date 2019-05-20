@@ -1,14 +1,14 @@
 
 /**
- * @file files.cpp
+ * @file    Parameters.cpp
  * @author  Matthew Harker
  * @brief   C++ file that provides utilities.
  *          This file contains all of the various utilities
  *          that provide extra functions, such as reading in
  *          parameters, and setting values in vectors.
  * 
- * @version 3.0
- * @date 2019-04-22
+ * @version 4.0
+ * @date 2019-05-20
  * 
  * @copyright Copyright (c) 2019
  * 
@@ -74,7 +74,8 @@ Parameters getParameters()
         string range;
 
         // read the info in from the file
-        file1 >> params.numVecs;
+        file1 >> params.popSize;
+        file1 >> params.experimentations;
         file1 >> params.numDims;
         file1 >> params.numFuncs;
 
@@ -121,9 +122,6 @@ Parameters getParameters()
     if (file2.is_open())
     {
         // retreive the variables
-        file2 >> params.experimentations;
-        file2 >> params.popSize;
-
         file2 >> params.dampener;
         file2 >> params.velConst1;
         file2 >> params.velConst2;

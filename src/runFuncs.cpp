@@ -5,8 +5,8 @@
  * @brief   Passes a solution vector through a function
  *          and returns the resulting value
  * 
- * @version 3.0
- * @date 2019-05-03
+ * @version 4.0
+ * @date 2019-05-20
  * 
  * @copyright Copyright (c) 2019
  * 

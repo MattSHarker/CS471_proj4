@@ -2,20 +2,24 @@
 /**
  * @file main.cpp
  * @author  Matthew Harker
- * @brief   Project 3 for CS470. This program run a population of
- *          solution vectors through a genetic algorithm and a
- *          differential evolution algorthim, then print all the 
- *          results to csv files.
+ * @brief   Project 4 for CS470. This program run a population of
+ *          solution vectors through Particle Swarm algorithm,
+ *          Firefly algorthim, and Harmony Search algorithm then
+ *          print all the results to csv files.
  * 
- * @version 3.0
- * @date 2019-05-03
+ * @version 4.0
+ * @date 2019-05-20
  * 
  * @copyright Copyright (c) 2019
  * 
  */
 
+#include <iostream>
+#include "unistd.h"
+
 #include "csv.h"
 #include "firefly.h"
+#include "harmony.h"
 #include "Parameters.h"
 #include "particleSwarm.h"
 #include "Population.h"
@@ -24,8 +28,8 @@
 using namespace std;
 
 /**
- * @brief   The Main function. This will run the genetic algorithm
- *          and the Differential Evolution Algorithm and create
+ * @brief   The Main function. This will run the Patricle Swarm,
+ *              
  * 
  * @return  int Indicates status of how the program ended.
  */
@@ -45,13 +49,16 @@ int main()
         rks[i] = new RecordKeeper(params);
 
     // run PSO
-    // particleSwarm(pops, rks);
-
-    // create CSV for PSO
-    // particleCSVs(pops, rks);
+    particleSwarm(pops, rks);
+    particleCSVs(rks);
 
     // run FFA
-    firefly(pops);
+    firefly(pops, rks);
+    fireflyCSVs(rks);
+
+    // run HS
+    harmony(pops, rks);
+    harmonyCSVs(rks);
 
     // destroy the Population \m/ 
     for (int i = 0; i < params.numFuncs; ++i)
@@ -65,4 +72,3 @@ int main()
 
     return 0;
 }
-

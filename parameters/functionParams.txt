@@ -1,4 +1,5 @@
 500
+500
 30
 18
 -512,512
@@ -20,8 +21,9 @@
 -100,100
 -100,100
 
-#--------------
-1 - Number of vectors (500+)
-2 - dimensions (30)
-3 - Number of Functions (18)
-4 - Ranges
+#--------------------------------------------------------
+1  - Population Size         (500+)
+2  - Experimentations        (500+)
+3  - dimensions              (30)
+4  - Number of Functions     (18)
+5+ - Ranges

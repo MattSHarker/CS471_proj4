@@ -1,4 +1,14 @@
 
+/**
+ * @file harmony.cpp
+ * @author Matthew Harker
+ * @brief 
+ * @version 1.0
+ * @date 2019-05-20
+ * 
+ * @copyright Copyright (c) 2019
+ * 
+ */
 #include <iostream>
 #include <random>
 #include <thread>
@@ -8,8 +18,17 @@
 
 using namespace std;
 
+/**
+ * @brief Threads the algorithm so each thread runs the population
+ *          through a specific function
+ * 
+ * @param pops  The array of Population objects
+ * @param rks   The array of RecordKeeper objects
+ */
 void harmony(Population** pops, RecordKeeper** rks)
 {
+    cout << "Starting Harmony Search algorithm...\n";
+
     int funcs = pops[0]->getNumFuncs();
     thread* myThreads = new thread[funcs];
 
@@ -19,14 +38,17 @@ void harmony(Population** pops, RecordKeeper** rks)
     for (int i = 0; i < funcs; ++i)
         myThreads[i].join();
 
-/*
-    for (int i = 0; i < funcs; ++i)
-        runHarmony(pops[i], rks[i]);
-*/
-
     delete [] myThreads;
+    
+    cout << "Harmony Search has completed...\n";
 }
 
+/**
+ * @brief Runs a population through the Harmony Search algorithm
+ * 
+ * @param pop   The population being optimized
+ * @param rk    Records the information as the optimization executes
+ */
 void runHarmony(Population* pop, RecordKeeper* rk)
 {
     // initialize random number generation
@@ -78,18 +100,23 @@ void runHarmony(Population* pop, RecordKeeper* rk)
         // end the timer
         timer = clock() - timer;
        
-        // record data
-        rk->setHistoricBestFit(pop->getFitness(0), i);
-        rk->setHistoricWorstFit(pop->getFitness(pop->getPopSize()-1), i);
-        rk->setTimeTaken(double(timer*1000)/CLOCKS_PER_SEC, i);
-        rk->setFinalFuncCalls(pop->getFuncCalls(), i);
-        pop->resetFuncCalls();
+        // update records
+        updateRecordsFF(pop, rk, timer, i);
     }
 
+    // record all of the final fitnesses
+    for (int i = 0; i < pop->getPopSize(); ++i)
+        rk->setFinalFit(pop->getFitness(i), i, 0);
+
+    // destrouy
     delete[] newHarm;
 }
 
-
+/**
+ * @brief Initializes a population to be optimized
+ * 
+ * @param pop The population to initialize
+ */
 void initializeHS(Population* pop)
 {
     // set up random number generation using mersenne twister 19937
@@ -110,34 +137,17 @@ void initializeHS(Population* pop)
     // sort the population (and fitness array)
     pop->sortPopulation();
 
-    if (pop->getFunction() == 0)
-        for (int i = 0; i < pop->getPopSize(); ++i)
-            cout << pop->getFitness(i) << endl;
-
     // reset the function calls
     pop->resetFuncCalls();
 }
 
-
-void pitchAdjust(Population* pop, double* newHarm, const int elem)
-{
-    // setup random number generation
-    random_device rd;
-    mt19937 mt(rd());
-    uniform_real_distribution<double> distr(-1, 1);
-
-    // assign a new value for each dimension in the harmony
-    for (int i = 0; i < pop->getSolutionSize(); ++i)
-    {
-        // create the new value
-        double temp = newHarm[elem];
-        temp += pop->getBandwidth() * distr(mt);
-
-        // assign the new value
-        newHarm[i] = temp;
-    }
-}
-
+/**
+ * @brief Adjusts the pitches of a harmony
+ * 
+ * @param pitch     The pitch to be adjusted
+ * @param bandwidth A constant that adjusts the pitch
+ * @return double   The resulting adjustment
+ */
 double adjustPitch(double pitch, double bandwidth)
 {
     random_device rd;
@@ -147,6 +157,17 @@ double adjustPitch(double pitch, double bandwidth)
     return pitch + bandwidth * distr(mt);
 }
 
+/**
+ * @brief Inserts a new harmony into a population.
+ *          The new harmony will be insterted into a sorted
+ *          position, so the population must already be sorted
+ *          for this to work. This process will also remove the
+ *          worst harmony in the population.
+ * 
+ * @param pop       The population being optimized
+ * @param newHarm   The harmony being added into the population
+ * @param newFit    The fitness of the new harmony being added
+ */
 void addNewHarmony(Population* pop, double* newHarm, double newFit)
 {
     // variables for the new position
@@ -181,5 +202,24 @@ void addNewHarmony(Population* pop, double* newHarm, double newFit)
 
     // replace the fitnes
     pop->setFitness(index, newFit);
+}
+
+/**
+ * @brief Updates the RecordKeeper object with information of the
+ *          optimization algorithm's progress.
+ * 
+ * @param pop       The populaion being optimized
+ * @param rk        The RecordKeeper object storing the information
+ * @param timer     Records the time an iteration took to complete
+ * @param iter      Which iteration the population has just finished
+ */
+void updateRecordsFF(Population* pop, RecordKeeper* rk, clock_t timer, const int iter)
+{
+    // record data
+    rk->setHistoricBestFit(pop->getFitness(0), iter);
+    rk->setHistoricWorstFit(pop->getFitness(pop->getPopSize()-1), iter);
+    rk->setTimeTaken(double(timer*1000)/CLOCKS_PER_SEC, iter);
+    rk->setFinalFuncCalls(pop->getFuncCalls(), iter);
+    pop->resetFuncCalls();
 }
 

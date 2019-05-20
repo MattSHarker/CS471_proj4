@@ -3,7 +3,7 @@
  * @author Matthew Harker
  * @brief Holds optimization information
  * @version 3.0
- * @date 2019-05-03
+ * @date 2019-05-20
  * 
  * @copyright Copyright (c) 2019
  * 
@@ -29,8 +29,8 @@ Population::Population(Parameters params, const int func)
 {
     // initialize variables
     popSize          = params.popSize;
-    solutionSize     = params.numDims;
     experimentations = params.experimentations;
+    solutionSize     = params.numDims;
     numFuncs         = params.numFuncs;
 
     dampener         = params.dampener;
@@ -267,17 +267,35 @@ double Population::getGamma()
     return gamma;
 }
 
-
+/**
+ * @brief Returns the value of bandwidth
+ * 
+ * @return double A variable to determine how much a pitch
+ *                  can be adjusted
+ */
 double Population::getBandwidth()
 {
     return bandwidth;
 }
 
+/**
+ * @brief Returns the value of HMCR
+ * 
+ * @return double A constant to determine whether a harmony
+ *                  will be adjusted or purely randomized
+ */
 double Population::getHMCR()
 {
     return hmcr;
 }
 
+/**
+ * @brief Returns the value of PAR
+ * 
+ * @return double A constant to determine whether a harmony
+ *                  will be adjusted or randomized from existing
+ *                  harmonies
+ */
 double Population::getPAR()
 {
     return par;
@@ -396,9 +414,6 @@ double Population::getPBestFit(const int vec)
     return pBestFit[vec];
 }
 
-
-
-
 /**
  * @brief Sets a value in the globBestVec array
  * 
@@ -440,7 +455,6 @@ double Population::getGlobalBestFit()
 {
     return globBestFit;
 }
-
 
 /**
  * @brief Returns the index of the solution vector with the lowest fitness

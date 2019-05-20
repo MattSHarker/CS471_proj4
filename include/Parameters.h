@@ -5,11 +5,10 @@
 struct Parameters
 {
     // general variables
-    int numVecs;
+    int popSize;
+    int experimentations;
     int numDims;
     int numFuncs;
-    int experimentations;
-    int popSize;
 
     float* lowRanges;
     float* highRanges;

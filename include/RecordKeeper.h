@@ -49,7 +49,7 @@ public:
 
     // functions for historicBestFit and historicWorstFit
     void   setHistoricBestFit(double newBest, const int element);
-    void   setHistoricWorstFit(double newBest, const int element);
+    void   setHistoricWorstFit(double newWorst, const int element);
     double getHistoricBestFit(const int element);
     double getHistoricWorstFit(const int element);
 
